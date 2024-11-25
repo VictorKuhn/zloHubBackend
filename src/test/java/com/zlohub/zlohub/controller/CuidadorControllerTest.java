@@ -113,4 +113,43 @@ class CuidadorControllerTest {
                         .content(objectMapper.writeValueAsString(dadosAtualizados)))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void testBuscarCuidadorPorEmail_Sucesso() throws Exception {
+        // Monta o JSON de requisição com um email existente
+        String emailRequest = "{ \"email\": \"joao.silva@example.com\" }";
+
+        // Realiza a requisição POST para buscar o cuidador pelo email
+        mockMvc.perform(post("/api/cuidadores/buscar-por-email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(emailRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("João"))
+                .andExpect(jsonPath("$.emailContato").value("joao.silva@example.com"));
+    }
+
+    @Test
+    void testBuscarCuidadorPorEmail_NaoEncontrado() throws Exception {
+        // Monta o JSON de requisição com um email inexistente
+        String emailRequest = "{ \"email\": \"naoexiste@example.com\" }";
+
+        // Realiza a requisição POST para buscar o cuidador pelo email
+        mockMvc.perform(post("/api/cuidadores/buscar-por-email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(emailRequest))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testBuscarCuidadorPorEmail_RequisicaoInvalida() throws Exception {
+        // Monta um JSON inválido (sem o campo "email")
+        String invalidRequest = "{}";
+
+        // Realiza a requisição POST com um corpo inválido
+        mockMvc.perform(post("/api/cuidadores/buscar-por-email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidRequest))
+                .andExpect(status().isBadRequest());
+    }
+
 }

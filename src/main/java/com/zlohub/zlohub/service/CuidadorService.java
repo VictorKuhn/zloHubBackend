@@ -26,6 +26,10 @@ public class CuidadorService {
         return cuidadorRepository.findById(id);
     }
 
+    public Optional<Cuidador> buscarPorEmail(String email) {
+        return cuidadorRepository.findByEmailContato(email);
+    }
+
     public Cuidador atualizarCuidador(Long id, Cuidador dadosAtualizados) {
         return cuidadorRepository.findById(id)
                 .map(cuidador -> {
