@@ -1,5 +1,6 @@
 package com.zlohub.zlohub.controller;
 
+import com.zlohub.zlohub.dto.AtualizarStatusCandidaturaDTO;
 import com.zlohub.zlohub.dto.CandidaturaDTO;
 import com.zlohub.zlohub.model.Candidatura;
 import com.zlohub.zlohub.service.CandidaturaService;
@@ -32,6 +33,16 @@ public class CandidaturaController {
     public ResponseEntity<List<CandidaturaDTO>> listarCandidaturasPorCuidador(@PathVariable Long cuidadorId) {
         List<CandidaturaDTO> candidaturas = candidaturaService.listarCandidaturasPorCuidador(cuidadorId);
         return ResponseEntity.ok(candidaturas);
+    }
+
+    @PatchMapping("/status")
+    public ResponseEntity<CandidaturaDTO> atualizarStatus(@RequestBody AtualizarStatusCandidaturaDTO atualizarStatusDTO) {
+        try {
+            CandidaturaDTO candidaturaAtualizada = candidaturaService.atualizarStatus(atualizarStatusDTO);
+            return ResponseEntity.ok(candidaturaAtualizada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @DeleteMapping("/{id}")

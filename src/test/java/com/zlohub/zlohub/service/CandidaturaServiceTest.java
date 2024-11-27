@@ -1,5 +1,6 @@
 package com.zlohub.zlohub.service;
 
+import com.zlohub.zlohub.dto.AtualizarStatusCandidaturaDTO;
 import com.zlohub.zlohub.dto.CandidaturaDTO;
 import com.zlohub.zlohub.model.StatusCandidatura;
 import com.zlohub.zlohub.model.Candidatura;
@@ -130,5 +131,50 @@ class CandidaturaServiceTest {
 
         assertEquals("Candidatura não encontrada.", exception.getMessage());
         verify(candidaturaRepository, never()).deleteById(any());
+    }
+
+    @Test
+    public void atualizarStatus_Sucesso() {
+        AtualizarStatusCandidaturaDTO atualizarStatusDTO = new AtualizarStatusCandidaturaDTO();
+        atualizarStatusDTO.setId(1L);
+        atualizarStatusDTO.setStatus(StatusCandidatura.ACEITO);
+
+        // Cria uma vaga mock para associar à candidatura
+        Vaga vaga = new Vaga();
+        vaga.setId(1L);
+        vaga.setTitulo("Vaga de teste");
+
+        // Configura a candidatura mock
+        Candidatura candidatura = new Candidatura();
+        candidatura.setId(1L);
+        candidatura.setStatus(StatusCandidatura.AGUARDANDO);
+        candidatura.setVaga(vaga); // Adiciona a vaga ao mock
+
+        when(candidaturaRepository.findById(1L)).thenReturn(Optional.of(candidatura));
+        when(candidaturaRepository.save(any(Candidatura.class))).thenAnswer(i -> i.getArgument(0));
+
+        CandidaturaDTO resultado = candidaturaService.atualizarStatus(atualizarStatusDTO);
+
+        // Verifica o resultado
+        assertEquals(StatusCandidatura.ACEITO.name(), resultado.getStatus());
+        assertEquals(1L, resultado.getVaga().getId());
+        verify(candidaturaRepository, times(1)).findById(1L);
+        verify(candidaturaRepository, times(1)).save(any(Candidatura.class));
+    }
+
+    @Test
+    public void atualizarStatus_CandidaturaNaoEncontrada() {
+        AtualizarStatusCandidaturaDTO atualizarStatusDTO = new AtualizarStatusCandidaturaDTO();
+        atualizarStatusDTO.setId(1L);
+        atualizarStatusDTO.setStatus(StatusCandidatura.ACEITO);
+
+        when(candidaturaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> candidaturaService.atualizarStatus(atualizarStatusDTO));
+
+        assertEquals("Candidatura não encontrada.", exception.getMessage());
+        verify(candidaturaRepository, times(1)).findById(1L);
+        verify(candidaturaRepository, never()).save(any(Candidatura.class));
     }
 }

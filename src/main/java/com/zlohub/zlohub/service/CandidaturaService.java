@@ -1,5 +1,6 @@
 package com.zlohub.zlohub.service;
 
+import com.zlohub.zlohub.dto.AtualizarStatusCandidaturaDTO;
 import com.zlohub.zlohub.dto.CandidaturaDTO;
 import com.zlohub.zlohub.dto.VagaDTO;
 import com.zlohub.zlohub.model.StatusCandidatura;
@@ -59,6 +60,19 @@ public class CandidaturaService {
             throw new RuntimeException("Candidatura não encontrada.");
         }
         candidaturaRepository.deleteById(id);
+    }
+
+    public CandidaturaDTO atualizarStatus(AtualizarStatusCandidaturaDTO atualizarStatusDTO) {
+        // Verifica se a candidatura existe
+        Candidatura candidatura = candidaturaRepository.findById(atualizarStatusDTO.getId())
+                .orElseThrow(() -> new RuntimeException("Candidatura não encontrada."));
+
+        // Atualiza o status
+        candidatura.setStatus(atualizarStatusDTO.getStatus());
+        Candidatura candidaturaAtualizada = candidaturaRepository.save(candidatura);
+
+        // Retorna o DTO atualizado
+        return converterParaDTO(candidaturaAtualizada);
     }
 
     private CandidaturaDTO converterParaDTO(Candidatura candidatura) {

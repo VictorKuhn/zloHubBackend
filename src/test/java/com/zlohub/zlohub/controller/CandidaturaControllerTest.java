@@ -3,6 +3,7 @@ package com.zlohub.zlohub.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zlohub.zlohub.dto.CandidaturaDTO;
 import com.zlohub.zlohub.dto.VagaDTO;
+import com.zlohub.zlohub.dto.AtualizarStatusCandidaturaDTO;
 import com.zlohub.zlohub.model.StatusCandidatura;
 import com.zlohub.zlohub.service.CandidaturaService;
 import org.junit.jupiter.api.BeforeEach;
@@ -132,4 +133,45 @@ class CandidaturaControllerTest {
 
         verify(candidaturaService, times(1)).listarCandidaturasPorCuidador(69L);
     }
+
+    @Test
+    public void atualizarStatus_Sucesso() throws Exception {
+        AtualizarStatusCandidaturaDTO atualizarStatusDTO = new AtualizarStatusCandidaturaDTO();
+        atualizarStatusDTO.setId(1L);
+        atualizarStatusDTO.setStatus(StatusCandidatura.ACEITO);
+
+        CandidaturaDTO candidaturaDTO = new CandidaturaDTO();
+        candidaturaDTO.setId(1L);
+        candidaturaDTO.setStatus(StatusCandidatura.ACEITO.name());
+
+        when(candidaturaService.atualizarStatus(any(AtualizarStatusCandidaturaDTO.class)))
+                .thenReturn(candidaturaDTO);
+
+        mockMvc.perform(patch("/api/candidaturas/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(atualizarStatusDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.status").value("ACEITO"));
+
+        verify(candidaturaService, times(1)).atualizarStatus(any(AtualizarStatusCandidaturaDTO.class));
+    }
+
+    @Test
+    public void atualizarStatus_CandidaturaNaoEncontrada() throws Exception {
+        AtualizarStatusCandidaturaDTO atualizarStatusDTO = new AtualizarStatusCandidaturaDTO();
+        atualizarStatusDTO.setId(1L);
+        atualizarStatusDTO.setStatus(StatusCandidatura.ACEITO);
+
+        when(candidaturaService.atualizarStatus(any(AtualizarStatusCandidaturaDTO.class)))
+                .thenThrow(new RuntimeException("Candidatura não encontrada."));
+
+        mockMvc.perform(patch("/api/candidaturas/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(atualizarStatusDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(candidaturaService, times(1)).atualizarStatus(any(AtualizarStatusCandidaturaDTO.class));
+    }
+
 }
