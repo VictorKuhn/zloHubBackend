@@ -1,3 +1,5 @@
+[Documentação Técnica RFC do Projeto](https://docs.google.com/document/d/11Tobzwm5-JkiURC2DJRTKl8LARjj46NG/edit?usp=sharing&ouid=113156827946997430842&rtpof=true&sd=true)
+
 # ZloHub - Backend
 
 ## Sobre o Projeto
